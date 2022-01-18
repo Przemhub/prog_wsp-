@@ -8,6 +8,7 @@ class Directory(threading.Thread):
         self.progress = 0
         self.file_left = 0
         self.file_size = 1
+        self.client_name = ""
         self.file_name = ""
         self.alive = False
         self.SEND_SPEED = 1000
@@ -17,7 +18,8 @@ class Directory(threading.Thread):
         self.file_size = file.size
         self.file_left = self.file_size
         self.file_name = file.name
-        print("file:",self.file_name)
+        self.client_name = file.client
+        print("file:",self.file_name, "size:",file.size)
         if not self.alive:
             self.start()
 
@@ -32,6 +34,7 @@ class Directory(threading.Thread):
                 time.sleep(self.thread_wait_time)
             self.file_left = 0
             self.file_name = ""
+            self.client_name = ""
             self.progress = 0
     def is_free(self):
         if self.file_left == 0:

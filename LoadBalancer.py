@@ -13,6 +13,7 @@ class MyLoadBalancer(threading.Thread):
         self.PRIORITY = 0
         self.FILE = 1
         self.WAIT_TIME = 2
+        self.client_list = []
         self.directories = [Directory(), Directory(), Directory(), Directory(), Directory()]
 
     def add_files(self, files):
@@ -44,4 +45,5 @@ class MyLoadBalancer(threading.Thread):
                 for directory in self.directories:
                     if directory.is_free() and len(self.files_queue) > 0:
                         directory.send_file(self.files_queue.pop(0)[self.FILE])
+
             time.sleep(self.thread_wait_time)

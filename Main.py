@@ -20,7 +20,6 @@ class Interface:
         self.client_list = []
         self.load_balancer = MyLoadBalancer()
         self.load_balancer.start()
-
         self.init_objects()
         self.init_texts()
 
@@ -35,34 +34,29 @@ class Interface:
 
         self.client_rects = []
         self.client_text_rects = []
-        for i in range(0, self.CLIENTS_NUMBER):
-            self.client_rects.append(pygame.rect.Rect(i * self.screen.get_width() / self.DIR_NUMBER,
-                                                      self.dir_rects[0].bottom + (i * self.screen.get_height() / 5),
-                                                      self.screen.get_width(),
-                                                      self.screen.get_height() / 4))
-            self.client_text_rects.append(pygame.Rect(self.dir_rects[i].midbottom[0], self.client_rects[i].top, 0, 0))
+
         self.button_image = pygame.image.load("resources/button_dodaj.png")
-        self.button_rect = pygame.rect.Rect(self.screen.get_width() / 30,
-                                            self.dir_rects[
-                                                0].bottom + self.screen.get_height() / 5 + self.screen.get_height() / 30,
-                                            self.button_image.get_width(), self.button_image.get_height())
+        self.button_rect = pygame.rect.Rect(10,200,self.button_image.get_width(),self.button_image.get_height())
 
     def reset_client_text(self):
+
         self.clients = [self.font.render("Client " + str(i + 1), True, (0, 0, 0)) for i in
                         range(0, self.CLIENTS_NUMBER)]
+        self.client_file_sizes = []
         for i in range(0, self.CLIENTS_NUMBER):
-            self.client_text_rects.append(pygame.Rect(self.dir_rects[i].midbottom[0], self.client_rects[i].top, 0, 0))
             self.client_file_names.append(
                 [self.font.render(file.name, True, (0, 0, 0)) for file in self.client_list[i][1]])
             self.client_file_sizes.append(
                 [self.font.render(str(file.size), True, (0, 0, 0)) for file in self.client_list[i][1]])
+            self.client_text_rects.append(
+                pygame.Rect(self.dir_rects[i].midbottom[0], self.dir_rects[0].bottom + 50 + i * 30, 0, 0))
 
     def reset_dir_texts(self):
         self.progresses = []
         self.file_names = []
         for directory in self.load_balancer.directories:
-            self.progresses.append(self.font.render(str(directory.progress), True, (0, 0, 0)))
-            self.file_names.append(self.font.render(str(directory.file_name), True, (0, 0, 0)))
+            self.progresses.append(self.font.render(str(directory.progress) + "%", True, (0, 0, 0)))
+            self.file_names.append(self.font.render(str(directory.client_name), True, (0, 0, 0)))
 
     def init_texts(self):
         self.font = pygame.font.SysFont("Calibri", 24, True)
@@ -97,12 +91,10 @@ class Interface:
             self.screen.blit(self.file_names[i], self.dir_rects[i].move(40, 70))
             self.screen.blit(self.progresses[i], self.dir_rects[i].move(120, 120))
         for i in range(0, self.CLIENTS_NUMBER):
-            pygame.draw.rect(self.screen, (255, 255, 255), self.client_rects[i])
-            pygame.draw.rect(self.screen, (0, 0, 0), self.client_rects[i], 3)
-            self.screen.blit(self.clients[i], self.client_rects[i].move(50, 30))
-            for j in range(0, len(self.client_file_names[i])):
-                self.screen.blit(self.client_file_names[i][j], self.client_rects[i].move(180, 60 + j * 20))
-                self.screen.blit(self.client_file_sizes[i][j], self.client_rects[i].move(250, 60 + j * 20))
+            self.screen.blit(self.clients[i], self.client_text_rects[0].move(0, 40 * i))
+            for j in range(0, len(self.client_file_sizes[i])):
+                self.screen.blit(self.client_file_sizes[i][j],
+                                 self.client_text_rects[0].move(140 + j * 100,  i * 40))
         self.screen.blit(self.button_image, self.button_rect)
 
     def handle_button_click(self, event):
@@ -117,21 +109,22 @@ class Interface:
                                                           (self.CLIENTS_NUMBER - 1) * self.screen.get_height() / 4),
                                                   self.screen.get_width(),
                                                   self.screen.get_height() / 4))
-        self.button_rect = pygame.rect.Rect(self.screen.get_width() / 30,
-                                            self.screen.get_height() / 5 + self.screen.get_height() / 4 * self.CLIENTS_NUMBER + self.screen.get_height() / 30,
-                                            self.button_image.get_width(), self.button_image.get_height())
+
         self.client_list.append(self.generate_client())
         self.reset_client_text()
 
     def generate_client(self):
+        r = randrange(0, 255)
+        g = randrange(0, 255)
+        b = randrange(0, 255)
         files = []
         files_num = randrange(0, 20)
         for i in range(0, files_num):
-            files.append(MyFile("file" + str(i), randrange(1000, 15000), self.CLIENTS_NUMBER))
+            files.append(MyFile("file" + str(i), randrange(1000, 15000), "client"+str(self.CLIENTS_NUMBER)))
         print("client", self.CLIENTS_NUMBER, "amount of files:", len(files))
         self.load_balancer.add_files(files)
         self.reset_dir_texts()
-        return ["client" + str(self.CLIENTS_NUMBER), files]
+        return ["client" + str(self.CLIENTS_NUMBER), files, (r, g, b)]
 
 
 if __name__ == "__main__":

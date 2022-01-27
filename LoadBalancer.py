@@ -6,15 +6,16 @@ from Directory import Directory
 
 
 class MyLoadBalancer(threading.Thread):
-    def __init__(self):
+    def __init__(self,file_observer):
         threading.Thread.__init__(self)
         self.files_queue = []
+        self.file_observer = file_observer
         self.thread_wait_time = 0.5
         self.PRIORITY = 0
         self.FILE = 1
         self.WAIT_TIME = 2
         self.client_list = []
-        self.directories = [Directory(), Directory(), Directory(), Directory(), Directory()]
+        self.directories = [Directory(file_observer), Directory(file_observer), Directory(file_observer), Directory(file_observer), Directory(file_observer)]
 
     def add_files(self, files):
         if len(self.files_queue) == 0:
@@ -24,6 +25,7 @@ class MyLoadBalancer(threading.Thread):
             for file in files:
                 self.files_queue.append([self.count_priority(0.1, file.size), file, 0.1])
         self.files_queue.sort(reverse=True, key=self.by_priority)
+
 
     def by_priority(self, queue):
         return queue[self.PRIORITY]
@@ -44,6 +46,7 @@ class MyLoadBalancer(threading.Thread):
                 file_queue.sort(reverse=True, key=self.by_priority)
                 for directory in self.directories:
                     if directory.is_free() and len(self.files_queue) > 0:
+                        print("file:", self.files_queue[0][1].name, "size:", self.files_queue[0][1].size)
                         directory.send_file(self.files_queue.pop(0)[self.FILE])
 
             time.sleep(self.thread_wait_time)

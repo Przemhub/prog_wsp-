@@ -14,11 +14,11 @@ class Interface:
         pygame.display.init()
         resolution = (1450, 800)
         self.screen = pygame.display.set_mode(resolution)
-
+        self.files_to_remove = []
         self.DIR_NUMBER = 5
         self.CLIENTS_NUMBER = 0
         self.client_list = []
-        self.load_balancer = MyLoadBalancer()
+        self.load_balancer = MyLoadBalancer(self.files_to_remove)
         self.load_balancer.start()
         self.init_objects()
         self.init_texts()
@@ -43,6 +43,16 @@ class Interface:
         self.clients = [self.font.render("Client " + str(i + 1), True, (0, 0, 0)) for i in
                         range(0, self.CLIENTS_NUMBER)]
         self.client_file_sizes = []
+        for i in range(0,len(self.client_list)):
+            for j in range(0,len(self.client_list[i][1])):
+                if len(self.files_to_remove) > 0:
+                    if self.files_to_remove[0] == self.client_list[i][1][j].size:
+                        # print(i,j,len(self.client_list[i][1]))
+                        self.client_list[i][1].remove(self.client_list[i][1][j])
+                        self.files_to_remove.pop(0)
+                        break
+
+
         for i in range(0, self.CLIENTS_NUMBER):
             self.client_file_names.append(
                 [self.font.render(file.name, True, (0, 0, 0)) for file in self.client_list[i][1]])
@@ -80,6 +90,7 @@ class Interface:
                 self.handle_button_click(event)
             self.screen.fill((255, 255, 255))
             self.reset_dir_texts()
+            self.reset_client_text()
             self.draw()
             pygame.display.flip()
 
@@ -111,7 +122,6 @@ class Interface:
                                                   self.screen.get_height() / 4))
 
         self.client_list.append(self.generate_client())
-        self.reset_client_text()
 
     def generate_client(self):
         r = randrange(0, 255)

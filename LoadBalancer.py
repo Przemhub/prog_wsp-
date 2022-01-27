@@ -46,7 +46,7 @@ class MyLoadBalancer(threading.Thread):
                 file_queue.sort(reverse=True, key=self.by_priority)
                 for directory in self.directories:
                     if directory.is_free() and len(self.files_queue) > 0:
-                        print("file:", self.files_queue[0][1].name, "size:", self.files_queue[0][1].size)
+                        # print("file:", self.files_queue[0][1].name, "size:", self.files_queue[0][1].size)
                         directory.send_file(self.files_queue.pop(0)[self.FILE])
 
             time.sleep(self.thread_wait_time)

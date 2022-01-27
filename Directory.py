@@ -35,17 +35,19 @@ class Directory(threading.Thread):
                 if self.progress >= 100:
                     # print("file:", self.file_name, "size:", self.file_size)
                     self.file_observer.append(self.file_size)
-
+                    # print(self.file_observer)
                     self.file_name = ""
                     self.progress = 100
+
                     time.sleep(self.thread_wait_time)
                     self.client_name = ""
+                    self.file_left = 0
                     end = True
                 if not end:
                     time.sleep(self.thread_wait_time)
                 else:
                     end = False
-            self.file_left = 0
+
             self.progress = 0
 
     def is_free(self):
